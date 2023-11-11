@@ -1,113 +1,79 @@
 import React, { useState } from "react";
 import {ReactComponent as SearchSVG} from '../icons/search-normal.svg';
+import useLongState from '../hooks/longState'
 
-const jsonData = [
-    {
-        category: 'Tozalash',
-        title: "Uylarni to'g'ri tozalash",
-        description: "Biz sizning uyingiz va ofisingiz tozaligi va farovonligi uchun keng ko'lamli xizmatlarni taqdim etamiz.",
-        image: "https://images.pexels.com/photos/48889/cleaning-washing-cleanup-the-ilo-48889.jpeg"
-    },
-    {
-        category: 'Dizinfeksiya',
-        title: "Uylarni to'g'ri tozalash",
-        description: "Biz sizning uyingiz va ofisingiz tozaligi va farovonligi uchun keng ko'lamli xizmatlarni taqdim etamiz.",
-        image: "https://images.pexels.com/photos/4239146/pexels-photo-4239146.jpeg",
-    },
-    {
-        category: 'Yuvish',
-        title: "Uylarni to'g'ri tozalash",
-        description: "Biz sizning uyingiz va ofisingiz tozaligi va farovonligi uchun keng ko'lamli xizmatlarni taqdim etamiz.",
-        image: "https://images.pexels.com/photos/48889/cleaning-washing-cleanup-the-ilo-48889.jpeg"
-    },
-    {
-        category: 'Oshxona',
-        title: "Uylarni to'g'ri tozalash",
-        description: "Biz sizning uyingiz va ofisingiz tozaligi va farovonligi uchun keng ko'lamli xizmatlarni taqdim etamiz.",
-        image: "https://images.pexels.com/photos/4239146/pexels-photo-4239146.jpeg",
-    },
-    {
-        category: 'Uy va ofis',
-        title: "Uylarni to'g'ri tozalash",
-        description: "Biz sizning uyingiz va ofisingiz tozaligi va farovonligi uchun keng ko'lamli xizmatlarni taqdim etamiz.",
-        image: "https://images.pexels.com/photos/48889/cleaning-washing-cleanup-the-ilo-48889.jpeg"
-    },
-    {
-        category: "Bog' va yashil maydonlar",
-        title: "Uylarni to'g'ri tozalash",
-        description: "Biz sizning uyingiz va ofisingiz tozaligi va farovonligi uchun keng ko'lamli xizmatlarni taqdim etamiz.",
-        image: "https://images.pexels.com/photos/4239146/pexels-photo-4239146.jpeg",
-    },
-    {
-        category: 'Tozalash',
-        title: "Uylarni to'g'ri tozalash",
-        description: "Biz sizning uyingiz va ofisingiz tozaligi va farovonligi uchun keng ko'lamli xizmatlarni taqdim etamiz.",
-        image: "https://images.pexels.com/photos/48889/cleaning-washing-cleanup-the-ilo-48889.jpeg"
-    },
-    {
-        category: 'Tozalash',
-        title: "Uylarni to'g'ri tozalash",
-        description: "Biz sizning uyingiz va ofisingiz tozaligi va farovonligi uchun keng ko'lamli xizmatlarni taqdim etamiz.",
-        image: "https://images.pexels.com/photos/4239146/pexels-photo-4239146.jpeg",
-    },
-]
-function DisplayPicture(pictureLink) {
-    return (
-        <img src={pictureLink} alt="service" />
-    )
-}
+function BlogTabs() {
+    let jsonData;
+    const [toggleState, setToggleState] = useState(1);
+    const {longState, longDispatch} = useLongState()
+    useEffect(() => {
+        fetch(`http://192.168.0.104:8000/api/${longState.keys.category}`)
+        .then(res => res.json()) 
+        .then(data => {
+          !data.new && 
+          fetch(`http://192.168.0.104:8000/api/category`)
+          .then(res => res.json()) 
+          .then(data => {
+            longDispatch({category: data})
+          });
+          });
+        
+        jsonData = longState.category;
+      }, []);
 
-function DisplayContentByCategory(category) {
-    const filteredData = jsonData.filter((element) => element.category === category);
-
-    return filteredData.map((element) => {
+    function DisplayPicture(pictureLink) {
         return (
-        <div className="offers__cards__block">
+            <img src={pictureLink} alt="service" />
+        )
+    }
 
-            {DisplayPicture(element.image)}
+    function DisplayContentByCategory(parent) {
+        const filteredData = jsonData.filter((element) => element.parent ===parent);
 
-            <div className="category">{element.category}</div>
-
-            <h3 className="cards__block__title">
-                {element.title}
-            </h3>
-            <p className="cards__block__description">
-                {element.description}
-            </p>
-            <button className="cards__block__button common-button">
-                Ko'rish
-            </button>
-        </div>
-)}
-)
-}
-
-
-
-function DisplayContent() {
-    return jsonData.map((element) => (
+        return filteredData.map((element) => {
+            return (
             <div className="offers__cards__block">
 
-                {DisplayPicture(element.image)}
+                {DisplayPicture(element.photo)}
 
-                <div className="category">{element.category}</div>
+                <div className="category">{element.parent}</div>
 
                 <h3 className="cards__block__title">
-                    {element.title}
+                    {element.name}
                 </h3>
                 <p className="cards__block__description">
-                    {element.description}
+                    {element.info}
                 </p>
                 <button className="cards__block__button common-button">
                     Ko'rish
                 </button>
             </div>
+    )}
     )
-    )
-}
+    }
 
-function BlogTabs() {
-    const [toggleState, setToggleState] = useState(1);
+    function DisplayContent() {
+        return jsonData.map((element) => (
+                <div className="offers__cards__block">
+
+                    {DisplayPicture(element.photo)}
+
+                    <div className="category">{element.parent}</div>
+
+                    <h3 className="cards__block__title">
+                        {element.name}
+                    </h3>
+                    <p className="cards__block__description">
+                        {element.info}
+                    </p>
+                    <button className="cards__block__button common-button">
+                        Ko'rish
+                    </button>
+                </div>
+        )
+        )
+    }
+
     const toggleTab = (index) => {
         setToggleState(index);
     }
@@ -122,7 +88,7 @@ function BlogTabs() {
                         <li className={toggleState == 4 ? "tab active-tab" : "tab"} onClick={() => toggleTab(4)}>Yuvish</li>
                         <li className={toggleState == 5 ? "tab active-tab" : "tab"} onClick={() => toggleTab(5)}>Oshxona</li>
                         <li className={toggleState == 6 ? "tab active-tab" : "tab"} onClick={() => toggleTab(6)}>Uy va ofis</li>
-                        <li className={toggleState == 7 ? "tab active-tab" : "tab"}onClick={() => toggleTab(7)}>Bog' va yashil maydonlar</li>
+                        <li className={toggleState == 7 ? "tab active-tab" : "tab"} onClick={() => toggleTab(7)}>Bog' va yashil maydonlar</li>
                     </ul>
                     <div className="vertical-line"></div>
                     <div className="search-input">

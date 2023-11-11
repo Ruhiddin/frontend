@@ -29,6 +29,7 @@ const socialLinks = [
 
 function Contact() {
   const [links, setLinks] = useState(socialLinks);
+  
   return (
     <section className="contact">
       <div className="container contact__container">

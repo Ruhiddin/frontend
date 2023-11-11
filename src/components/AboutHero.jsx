@@ -1,8 +1,32 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { ReactComponent as ArrowRight } from "../icons/arrow-right.svg";
-
+import useLongState from '../hooks/longState'
 
 function AboutHero() {
+  const {longState, longDispatch} = useLongState()
+  let clients = 0
+  let experience = 0
+  useEffect(() => {
+    fetch(`http://192.168.0.104:8000/api/${longState.keys.branch}`)
+    .then(res => res.json()) 
+    .then(data => {
+      !data.new && 
+      fetch(`http://192.168.0.104:8000/api/branch`)
+      .then(res => res.json()) 
+      .then(data => {
+        longDispatch({branch: data})
+      });
+      });
+    
+    longState.branch.forEach(branch => {
+    clients += parseInt(branch.clients);
+    experience += parseInt(branch.experience);
+  });
+    clients = clients / clients.length
+    experience = experience / experience.length
+    
+  }, []);
+
   return (
     <section className="About__hero">
       <div className="container About__Hero__site__map">
@@ -21,11 +45,11 @@ function AboutHero() {
           <div className="stats-wrapper">
             <div className="stats">
               <span className="stats-description">Mijozlarimiz</span>
-              <span className="stats-number">2000+</span>
+              <span className="stats-number">{clients}+</span>
             </div>
             <div className="stats">
               <span className="stats-description">Ish tajribamiz</span>
-              <span className="stats-number">10 yil</span>
+              <span className="stats-number">{experience} yil</span>
             </div>
           </div>
         </div>
